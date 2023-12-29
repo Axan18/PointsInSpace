@@ -53,7 +53,8 @@ class ArrayList
         }
         void clear()
         {
-            size=0;
+            sizeOfList=0;
+
         }
         int find(T x)
         {

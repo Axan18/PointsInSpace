@@ -3,14 +3,18 @@
 #include "ArrayList.hpp"
 #include <string> 
 #include <cmath>
+#ifndef DIMENSIONS
+#define DIMENSIONS 5 // default value
+#endif
 
-constexpr int dimensions = 10;
-constexpr int numberOfPoints = 100;
+#ifndef NUMBEROFPOINTS
+#define NUMBEROFPOINTS 10 // default value
+#endif
 
-double euclideanMetric(ArrayList<double, dimensions> point1, ArrayList<double, dimensions> point2)
+double euclideanMetric(ArrayList<double, DIMENSIONS> point1, ArrayList<double, DIMENSIONS> point2)
 {
     double sum = 0;
-    for (int i = 0; i < dimensions; i++)
+    for (int i = 0; i < DIMENSIONS; i++)
     {
         sum += pow(point1[i] - point2[i], 2);
     }
@@ -18,8 +22,13 @@ double euclideanMetric(ArrayList<double, dimensions> point1, ArrayList<double, d
 }
 
 int main(int argc, char* argv[]) {
+    std::cout<<"\n Nearest neighbour - brute force"<<std::endl;
     std::string filename = argv[1];
-    ArrayList<ArrayList<double, dimensions>, numberOfPoints> points;
+    std::string filename2 = argv[2];
+
+    const int dimensions = DIMENSIONS;
+    const int numberOfPoints = NUMBEROFPOINTS;
+    ArrayList<ArrayList<double, dimensions>, numberOfPoints> startingPoints;
     double value;
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -33,21 +42,24 @@ int main(int argc, char* argv[]) {
             file >> value;
             point.push_back(value);
         }
-        points.push_back(point);
+        startingPoints.push_back(point);
     }
     ArrayList<double, dimensions> searchPoint;
     for(int i=0;i<dimensions;i++)
     {
-        searchPoint.push_back(0);
-    }
-    double minDistance=euclideanMetric(points[0], searchPoint);
-    ArrayList<double, dimensions> nearestPoint=points[0];
+        file >> value;
+        searchPoint.push_back(value);
+    } 
+    file.close();
+
+    double minDistance=euclideanMetric(startingPoints[0], searchPoint);
+    ArrayList<double, dimensions> nearestPoint=startingPoints[0];
     for(int i=1;i<numberOfPoints;i++)
     {   
-        if(euclideanMetric(points[i], searchPoint)<minDistance)
+        if(euclideanMetric(startingPoints[i], searchPoint)<minDistance)
         {
-            minDistance=euclideanMetric(points[i], searchPoint);
-            nearestPoint=points[i];
+            minDistance=euclideanMetric(startingPoints[i], searchPoint);
+            nearestPoint=startingPoints[i];
         }
     }
     std::cout << "The nearest point to ";
@@ -61,5 +73,58 @@ int main(int argc, char* argv[]) {
         std::cout<<nearestPoint[i]<<",";
     }
     std::cout<< ") with distance: " << sqrt(minDistance)<< std::endl;
-    return 0;
+
+    //po dodaniu punktow
+    std::cout<<"After adding points"<<std::endl;
+    std::ifstream file2(filename2);
+    int numberOfAddedPoints;
+    file2>>numberOfAddedPoints;
+    for(int i=0;i<numberOfAddedPoints+1;i++)
+    {
+        file2.ignore(1000,'\n');
+    }
+    searchPoint.clear();
+    for(int i=0;i<dimensions;i++)
+    {
+        file2 >> value;
+        searchPoint.push_back(value);
+    }
+    file2.seekg(0, std::ios::beg); //wracamy na poczatek pliku
+    file2.ignore(1000,'\n');
+    minDistance=euclideanMetric(startingPoints[0], searchPoint);
+    nearestPoint=startingPoints[0];
+    for(int i=0;i<numberOfAddedPoints;i++)
+    {    
+        ArrayList<double, dimensions> point;
+        for(int i=0;i<dimensions;i++)
+        {
+            file2 >> value;
+            point.push_back(value);
+        }
+        if(euclideanMetric(point, searchPoint)<minDistance)
+        {
+            minDistance=euclideanMetric(point, searchPoint);
+            nearestPoint=point;
+        }
+    }
+    for(int i=1;i<numberOfPoints;i++)
+    {   
+        if(euclideanMetric(startingPoints[i], searchPoint)<minDistance)
+        {
+            minDistance=euclideanMetric(startingPoints[i], searchPoint);
+            nearestPoint=startingPoints[i];
+        }
+    }
+    file2.close();
+     std::cout << "The nearest point to ";
+    for(int i=0;i<dimensions;i++)
+    {
+        std::cout<<searchPoint[i]<<",";
+    }
+    std::cout<< " is: (" ;   
+    for(int i=0;i<dimensions;i++)
+    {
+        std::cout<<nearestPoint[i]<<",";
+    }
+    std::cout<< ") with distance: " << sqrt(minDistance)<< std::endl;
 }
