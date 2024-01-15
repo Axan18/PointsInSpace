@@ -1,0 +1,3 @@
+Program wyznacza najbliższego sąsiada zadanego punktu w k-wymiarowej przestrzeni w czasie logarytmicznym za pomocą struktury drzewa k-wymiarowego.
+W celu uruchomienia programu należy wydać komendę make run, która uruchomi generator i program do którego poleceń należy się stosować.
+Następnie zostanie uruchomiony program weryfikujący wyniki. W celu edycji liczby punktów i liczby wymiarów należy zmienić ustawienia w pliku Makefile.
